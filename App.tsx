@@ -421,26 +421,23 @@ const App: React.FC = () => {
       const bookWidth = bookRef.current?.clientWidth || window.innerWidth * 0.8;
       const bookHeight = bookRef.current?.clientHeight || window.innerHeight * 0.8;
       
-      // Determine context - Always use current date for proper calendar storage
+      // Determine context - Always use specific date for proper calendar storage
       let targetDateKey = formatDateKey(currentDate);
       
-      // For monthly view, use today's date within the month
+      // For monthly view, use today's date (items will be shown in Free layout)
       if (currentLayout === 'monthly') {
           const today = new Date();
           targetDateKey = formatDateKey(today);
       }
 
-      // Spawn location logic
-      let startX, startY;
-      if (currentLayout === 'monthly') {
-          // Spawn on left page for monthly
-          startX = (bookWidth / 4) + (Math.random() * 60 - 30);
-          startY = (bookHeight / 2) + (Math.random() * 60 - 30);
-      } else {
-          // Spawn anywhere or right page for free layout & scrap page
-          startX = (bookWidth * 0.5) + (Math.random() * 100 - 50); 
-          startY = (bookHeight * 0.5) + (Math.random() * 100 - 50);
-      }
+      // Spawn location logic - safe area within bounds (20% ~ 80% of screen)
+      // Leave 20% margin on each side to prevent items from spawning outside
+      const margin = 0.2;
+      const safeWidth = bookWidth * (1 - 2 * margin);
+      const safeHeight = bookHeight * (1 - 2 * margin);
+      
+      let startX = bookWidth * margin + (Math.random() * safeWidth);
+      let startY = bookHeight * margin + (Math.random() * safeHeight);
 
       const newItem: ScrapItem = {
         id: crypto.randomUUID(),
@@ -760,13 +757,13 @@ const App: React.FC = () => {
                 onDrop={handleDrop}
               >
                   {/* --- LINK BAR (일기/스크랩 탭에 표시) --- */}
-                  {(currentLayout === 'free' || currentLayout === 'all_scraps') && (
+                  {(currentLayout === 'free' || currentLayout === 'all_scraps' || (currentLayout === 'monthly' && !isMobile)) && (
                     <UrlInput 
                         onScrap={handleScrap} 
                         onUpload={handleUpload} 
                         onCreateOpen={() => setShowCreationModal(true)} 
                         isLoading={loading}
-                        className="absolute top-5 right-8" 
+                        className="absolute top-5 right-8 z-50" 
                     />
                   )}
 
@@ -821,68 +818,26 @@ const App: React.FC = () => {
                       </div>
                   )}
 
-                  {/* Canvas Layer (Draggable Items for Desktop / Fixed Grid for Mobile) */}
-                  {(currentLayout === 'free' || currentLayout === 'monthly' || currentLayout === 'favorites' || currentLayout === 'all_scraps') && (
-                      isMobile ? (
-                        // 모바일: 고정 그리드 레이아웃
-                        <div className="absolute inset-0 z-30 overflow-y-auto p-4" id="canvas-area">
-                          <div className="grid grid-cols-2 gap-4 pb-20">
-                            {filteredItems.map((item, index) => (
-                              <div 
-                                key={item.id} 
-                                className="relative bg-white rounded-lg shadow-md p-2 border border-stone-200"
-                                style={{ minHeight: '200px' }}
-                              >
-                                {/* 삭제 버튼 */}
-                                <button
-                                  onClick={() => handleDeleteItem(item.id)}
-                                  className="absolute -top-2 -right-2 w-8 h-8 bg-red-500 text-white rounded-full shadow-lg z-50 flex items-center justify-center"
-                                >
-                                  <span className="text-sm font-bold">✕</span>
-                                </button>
-                                
-                                {/* 즐겨찾기 버튼 */}
-                                <button
-                                  onClick={() => handleToggleFavorite(item.id)}
-                                  className={`absolute -top-2 -left-2 w-8 h-8 rounded-full shadow-lg z-50 flex items-center justify-center ${
-                                    item.isFavorite ? 'bg-red-500 text-white' : 'bg-white text-red-300'
-                                  }`}
-                                >
-                                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
-                                    <path d="M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 01-.383-.218 25.18 25.18 0 01-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0112 5.052 5.5 5.5 0 0116.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 01-4.244 3.17 15.247 15.247 0 01-.383.219l-.022.012-.007.004-.003.001a.752.752 0 01-.704 0l-.003-.001z" />
-                                  </svg>
-                                </button>
-                                
-                                {/* 아이템 내용 (스케일 조정) */}
-                                <div className="w-full h-full flex items-center justify-center overflow-hidden">
-                                  <div style={{ transform: 'scale(0.8)', transformOrigin: 'center' }}>
-                                    {renderItemContent(item)}
-                                  </div>
-                                </div>
-                              </div>
-                            ))}
-                          </div>
+                  {/* Canvas Layer (Draggable Items) */}
+                  {/* Monthly 레이아웃은 제외 - MonthlySpread가 자체적으로 달력 셀에 표시함 */}
+                  {(currentLayout === 'free' || currentLayout === 'favorites' || currentLayout === 'all_scraps') && (
+                    <div className="absolute inset-0 z-30 overflow-hidden pointer-events-none" id="canvas-area">
+                      {filteredItems.map(item => (
+                        <div key={item.id} className="pointer-events-auto">
+                          <DraggableItem 
+                            item={item} 
+                            onUpdatePosition={updatePosition}
+                            onBringToFront={bringToFront}
+                            onDelete={handleDeleteItem}
+                            onSetMainItem={handleSetMainItem}
+                            onToggleFavorite={handleToggleFavorite}
+                            snapToGrid={currentLayout === 'favorites'}
+                          >
+                            {renderItemContent(item)}
+                          </DraggableItem>
                         </div>
-                      ) : (
-                        // 데스크톱: 드래그 가능한 레이아웃
-                        <div className="absolute inset-0 z-30 overflow-hidden pointer-events-none" id="canvas-area">
-                          {filteredItems.map(item => (
-                            <div key={item.id} className="pointer-events-auto">
-                              <DraggableItem 
-                                item={item} 
-                                onUpdatePosition={updatePosition}
-                                onBringToFront={bringToFront}
-                                onDelete={handleDeleteItem}
-                                onSetMainItem={handleSetMainItem}
-                                onToggleFavorite={handleToggleFavorite}
-                                snapToGrid={currentLayout === 'favorites'}
-                              >
-                                {renderItemContent(item)}
-                              </DraggableItem>
-                            </div>
-                          ))}
-                        </div>
-                      )
+                      ))}
+                    </div>
                   )}
               </div>
           </div>

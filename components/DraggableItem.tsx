@@ -128,9 +128,28 @@ const DraggableItem: React.FC<DraggableItemProps> = ({ item, onUpdatePosition, o
       }
 
       // Logic for dragging
-      if (isDragging) {
+      if (isDragging && ref.current) {
           let newX = e.clientX - dragOffset.x;
           let newY = e.clientY - dragOffset.y;
+
+          // Get container bounds (canvas area)
+          const canvasArea = document.getElementById('canvas-area');
+          if (canvasArea) {
+              const containerRect = canvasArea.getBoundingClientRect();
+              const itemRect = ref.current.getBoundingClientRect();
+              const itemWidth = itemRect.width;
+              const itemHeight = itemRect.height;
+              
+              // Calculate boundaries (keep item fully inside)
+              const minX = 0;
+              const minY = 0;
+              const maxX = containerRect.width - itemWidth;
+              const maxY = containerRect.height - itemHeight;
+              
+              // Clamp position to boundaries
+              newX = Math.max(minX, Math.min(maxX, newX));
+              newY = Math.max(minY, Math.min(maxY, newY));
+          }
 
           // Magnetic Grid Logic (Snap to 20px)
           if (snapToGrid) {
