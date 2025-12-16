@@ -5,19 +5,21 @@ interface FreeLayoutProps {
   onPrevDay?: () => void;
   onNextDay?: () => void;
   isStaticPage?: boolean;
+  title?: string;
+  hideBorder?: boolean;
 }
 
-const FreeLayout: React.FC<FreeLayoutProps> = ({ currentDate, onPrevDay, onNextDay, isStaticPage = false }) => {
+const FreeLayout: React.FC<FreeLayoutProps> = ({ currentDate, onPrevDay, onNextDay, isStaticPage = false, title, hideBorder = false }) => {
   const dateStr = currentDate.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }).toUpperCase();
 
   return (
     <>
       {/* Left Page */}
-      <div className="flex-1 border-r border-slate-300 relative bg-custom-paper flex flex-col bg-grid-pattern">
+      <div className={`flex-1 relative bg-custom-paper flex flex-col bg-grid-pattern ${!hideBorder ? 'border-r border-slate-300' : ''}`}>
           {/* Header Date */}
           <div className="p-6 pb-2 border-b border-dashed border-slate-300/50 flex items-center z-20 relative h-16">
               <div className="font-handwriting font-bold text-stone-600 text-lg">
-                  {isStaticPage ? "MY SCRAPBOOK" : dateStr}
+                  {title || (isStaticPage ? "MY SCRAPBOOK" : dateStr)}
               </div>
           </div>
           
@@ -39,11 +41,6 @@ const FreeLayout: React.FC<FreeLayoutProps> = ({ currentDate, onPrevDay, onNextD
            {/* Header Space (Empty to make room for UrlInput) */}
            <div className="p-6 pb-2 border-b border-dashed border-slate-300/50 flex justify-end items-center z-20 relative h-16">
                {/* URL Input sits here absolutely from App.tsx */}
-               {isStaticPage && (
-                  <div className="mr-60 font-handwriting text-stone-400 text-sm tracking-widest opacity-50">
-                      ETERNAL COLLECTION
-                  </div>
-               )}
            </div>
 
            {/* Footer Nav */}

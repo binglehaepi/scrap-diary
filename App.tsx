@@ -100,6 +100,11 @@ const App: React.FC = () => {
   };
 
   const getFilteredItems = () => {
+      // All Scraps (모든 스크랩) - 모바일용
+      if (currentLayout === 'all_scraps') {
+          return items; // 모든 아이템 반환
+      }
+      
       // Favorites (영구 소장)
       if (currentLayout === 'favorites') {
           return items.filter(item => item.isFavorite === true);
@@ -686,8 +691,8 @@ const App: React.FC = () => {
           <div className="w-full max-w-4xl">
             <HeroScrapInput onScrap={handleScrap} isLoading={loading} />
             
-            {/* 시작 안내 */}
-            <div className="mt-16 text-center space-y-4">
+            {/* 시작 안내 (데스크톱 전용) */}
+            <div className="mt-16 text-center space-y-4 hidden lg:block">
               <p className="text-stone-600 text-lg">
                 링크를 스크랩하면 자동으로 다이어리에 추가돼요 📔
               </p>
@@ -748,8 +753,8 @@ const App: React.FC = () => {
                 onDragLeave={handleDragLeave}
                 onDrop={handleDrop}
               >
-                  {/* --- LINK BAR (일기 탭에만 표시) --- */}
-                  {currentLayout === 'free' && (
+                  {/* --- LINK BAR (일기/스크랩 탭에 표시) --- */}
+                  {(currentLayout === 'free' || currentLayout === 'all_scraps') && (
                     <UrlInput 
                         onScrap={handleScrap} 
                         onUpload={handleUpload} 
@@ -764,6 +769,14 @@ const App: React.FC = () => {
                         currentDate={currentDate} 
                         onPrevDay={() => handleDateChange(-1)} 
                         onNextDay={() => handleDateChange(1)} 
+                      />
+                  )}
+                  {currentLayout === 'all_scraps' && (
+                      <FreeLayout 
+                        currentDate={currentDate} 
+                        isStaticPage={true}
+                        title="📎 All Scraps"
+                        hideBorder={true}
                       />
                   )}
                   {currentLayout === 'favorites' && (
@@ -803,7 +816,7 @@ const App: React.FC = () => {
                   )}
 
                   {/* Canvas Layer (Draggable Items for Desktop / Fixed Grid for Mobile) */}
-                  {(currentLayout === 'free' || currentLayout === 'monthly' || currentLayout === 'favorites') && (
+                  {(currentLayout === 'free' || currentLayout === 'monthly' || currentLayout === 'favorites' || currentLayout === 'all_scraps') && (
                       isMobile ? (
                         // 모바일: 고정 그리드 레이아웃
                         <div className="absolute inset-0 z-30 overflow-y-auto p-4" id="canvas-area">
@@ -923,46 +936,26 @@ const App: React.FC = () => {
 
       {/* --- UI Overlays --- */}
 
-      {/* Mobile/Tablet Bottom Navigation */}
-      <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-stone-200 shadow-lg z-[100] flex justify-around items-center py-2">
+      {/* Mobile/Tablet Bottom Navigation - 단순화 (홈, 스크랩만) */}
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-stone-200 shadow-lg z-[100] flex justify-around items-center py-3">
         <button 
           onClick={() => changeLayout('home')}
-          className={`flex flex-col items-center gap-1 px-4 py-2 ${currentLayout === 'home' ? 'text-blue-500' : 'text-stone-600'}`}
+          className={`flex flex-col items-center gap-1 px-8 py-2 transition-all ${currentLayout === 'home' ? 'text-blue-500 scale-110' : 'text-stone-600'}`}
         >
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-6 h-6">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-7 h-7">
             <path fillRule="evenodd" d="M9.293 2.293a1 1 0 011.414 0l7 7A1 1 0 0117 11h-1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-3a1 1 0 00-1-1H9a1 1 0 00-1 1v3a1 1 0 01-1 1H5a1 1 0 01-1-1v-6H3a1 1 0 01-.707-1.707l7-7z" clipRule="evenodd" />
           </svg>
-          <span className="text-xs">홈</span>
+          <span className="text-sm font-bold">홈</span>
         </button>
         
         <button 
-          onClick={() => changeLayout('monthly')}
-          className={`flex flex-col items-center gap-1 px-4 py-2 ${currentLayout === 'monthly' ? 'text-purple-500' : 'text-stone-600'}`}
+          onClick={() => changeLayout('all_scraps')}
+          className={`flex flex-col items-center gap-1 px-8 py-2 transition-all ${currentLayout === 'all_scraps' ? 'text-purple-500 scale-110' : 'text-stone-600'}`}
         >
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-7 h-7">
+            <path fillRule="evenodd" d="M10.5 3A1.501 1.501 0 009 4.5h6A1.5 1.5 0 0013.5 3h-3zm-2.693.178A3 3 0 0110.5 1.5h3a3 3 0 012.694 1.678c.497.042.992.092 1.486.15 1.497.173 2.57 1.46 2.57 2.929V19.5a3 3 0 01-3 3H6.75a3 3 0 01-3-3V6.257c0-1.47 1.073-2.756 2.57-2.93.493-.057.989-.107 1.487-.15z" clipRule="evenodd" />
           </svg>
-          <span className="text-xs">월간</span>
-        </button>
-        
-        <button 
-          onClick={() => changeLayout('free')}
-          className={`flex flex-col items-center gap-1 px-4 py-2 ${currentLayout === 'free' ? 'text-green-500' : 'text-stone-600'}`}
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-          </svg>
-          <span className="text-xs">일기</span>
-        </button>
-        
-        <button 
-          onClick={() => changeLayout('favorites')}
-          className={`flex flex-col items-center gap-1 px-4 py-2 ${currentLayout === 'favorites' ? 'text-red-500' : 'text-stone-600'}`}
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6">
-            <path d="M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 01-.383-.218 25.18 25.18 0 01-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0112 5.052 5.5 5.5 0 0116.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 01-4.244 3.17 15.247 15.247 0 01-.383.219l-.022.012-.007.004-.003.001a.752.752 0 01-.704 0l-.003-.001z" />
-          </svg>
-          <span className="text-xs">소장</span>
+          <span className="text-sm font-bold">스크랩</span>
         </button>
       </div>
 

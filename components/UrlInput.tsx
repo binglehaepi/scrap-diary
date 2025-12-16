@@ -37,12 +37,13 @@ const UrlInput: React.FC<UrlInputProps> = ({ onScrap, onUpload, onCreateOpen, is
         <form onSubmit={handleSubmit} className="flex-1 relative group">
             {/* Label Removed for cleaner look */}
             <input
-                type="url"
+                type="text"
                 value={url}
                 onChange={(e) => setUrl(e.target.value)}
                 placeholder={isLoading ? "Scraping..." : "Paste link..."}
                 className="w-full bg-transparent border-b-2 border-stone-300 focus:border-purple-400 outline-none text-base font-handwriting text-stone-800 placeholder-stone-400/50 pb-1 transition-colors"
                 disabled={isLoading}
+                inputMode="url"
             />
             {isLoading && (
                <div className="absolute right-0 bottom-1">
@@ -62,7 +63,11 @@ const UrlInput: React.FC<UrlInputProps> = ({ onScrap, onUpload, onCreateOpen, is
             />
             <button 
                 type="button" 
-                onClick={() => fileInputRef.current?.click()} 
+                onClick={() => fileInputRef.current?.click()}
+                onTouchEnd={(e) => {
+                  e.preventDefault();
+                  if (!isLoading) fileInputRef.current?.click();
+                }}
                 className="text-stone-400 hover:text-stone-600 active:text-stone-600 hover:scale-110 active:scale-110 transition-all p-1 md:p-1 sm:p-2 touch-manipulation"
                 title="Upload Photo"
                 disabled={isLoading}
@@ -73,7 +78,11 @@ const UrlInput: React.FC<UrlInputProps> = ({ onScrap, onUpload, onCreateOpen, is
             </button>
             <button 
                 type="button" 
-                onClick={onCreateOpen} 
+                onClick={onCreateOpen}
+                onTouchEnd={(e) => {
+                  e.preventDefault();
+                  if (!isLoading) onCreateOpen();
+                }}
                 className="text-stone-400 hover:text-stone-600 active:text-stone-600 hover:scale-110 active:scale-110 transition-all p-1 md:p-1 sm:p-2 touch-manipulation"
                 title="Write Note"
                 disabled={isLoading}

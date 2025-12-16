@@ -110,8 +110,15 @@ const HeroScrapInput: React.FC<HeroScrapInputProps> = ({ onScrap, isLoading }) =
   // 엔터키 누르면 실행
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !isProcessing && !isLoading) {
+      e.preventDefault(); // 폼 제출 방지
       handleScrap();
     }
+  };
+  
+  // 버튼 클릭 핸들러
+  const handleButtonClick = (e: React.MouseEvent) => {
+    e.preventDefault(); // 기본 동작 방지
+    handleScrap();
   };
 
   return (
@@ -146,9 +153,16 @@ const HeroScrapInput: React.FC<HeroScrapInputProps> = ({ onScrap, isLoading }) =
             style={{ maxHeight: '120px' }}
           />
           <button 
-            onClick={handleScrap}
+            onClick={handleButtonClick}
+            onTouchEnd={(e) => {
+              e.preventDefault();
+              if (!isProcessing && !isLoading && inputValue.trim()) {
+                handleScrap();
+              }
+            }}
             disabled={isProcessing || isLoading || !inputValue.trim()}
             className="ml-3 px-5 py-2 bg-blue-500 text-white font-bold rounded-full hover:bg-blue-600 active:scale-95 disabled:bg-stone-300 disabled:cursor-not-allowed transition-all flex-shrink-0 text-sm"
+            type="button"
           >
             {isProcessing || isLoading ? '⏳' : '스크랩'}
           </button>
