@@ -158,7 +158,7 @@ const DraggableItem: React.FC<DraggableItemProps> = ({ item, onUpdatePosition, o
       window.removeEventListener('pointermove', handlePointerMove);
       window.removeEventListener('pointerup', handlePointerUp);
     };
-  }, [isDragging, isResizing, isRotating, dragOffset, resizeStart, item.id, onUpdatePosition, snapToGrid]);
+  }, [isDragging, isResizing, isRotating, dragOffset, resizeStart, item.id, onUpdatePosition, onBringToFront, snapToGrid]);
 
   const deleteItem = (e: React.MouseEvent) => {
       e.stopPropagation();

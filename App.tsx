@@ -110,10 +110,10 @@ const App: React.FC = () => {
           return items.filter(item => item.isFavorite === true);
       }
 
-      // In Monthly view, we show items that belong to the "Month Canvas" (Left Page)
+      // In Monthly view, show items from the current month
       if (currentLayout === 'monthly') {
-          const monthKey = formatMonthKey(currentDate);
-          return items.filter(item => item.diaryDate === monthKey);
+          const monthPrefix = formatMonthKey(currentDate);
+          return items.filter(item => item.diaryDate && item.diaryDate.startsWith(monthPrefix));
       }
       
       // In Free view, we show items for the specific day
@@ -421,9 +421,14 @@ const App: React.FC = () => {
       const bookWidth = bookRef.current?.clientWidth || window.innerWidth * 0.8;
       const bookHeight = bookRef.current?.clientHeight || window.innerHeight * 0.8;
       
-      // Determine context
+      // Determine context - Always use current date for proper calendar storage
       let targetDateKey = formatDateKey(currentDate);
-      if (currentLayout === 'monthly') targetDateKey = formatMonthKey(currentDate);
+      
+      // For monthly view, use today's date within the month
+      if (currentLayout === 'monthly') {
+          const today = new Date();
+          targetDateKey = formatDateKey(today);
+      }
 
       // Spawn location logic
       let startX, startY;
@@ -887,10 +892,7 @@ const App: React.FC = () => {
               {/* HOME Tab (0번째) */}
               <button 
                 onClick={() => changeLayout('home')}
-                className={`
-                    w-12 h-10 md:w-12 md:h-10 sm:w-10 sm:h-9 rounded-r-md flex items-center justify-center shadow-sm border border-l-0 border-stone-200 transition-transform hover:translate-x-1 active:translate-x-1 mb-2
-                    ${currentLayout === 'home' ? 'bg-blue-500 text-white translate-x-1 font-black' : 'bg-white text-stone-600'}
-                `}
+                className="w-12 h-10 md:w-12 md:h-10 sm:w-10 sm:h-9 rounded-r-md flex items-center justify-center shadow-sm border border-l-0 border-stone-200 transition-transform hover:translate-x-1 active:translate-x-1 mb-2 bg-white text-stone-600"
                 title="Home"
               >
                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5">

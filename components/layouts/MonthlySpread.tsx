@@ -48,6 +48,7 @@ const MonthlySpread: React.FC<MonthlySpreadProps> = ({ currentDate, items, textD
   const musicCoverInputRef = useRef<HTMLInputElement>(null);
   const monthlyBgInputRef = useRef<HTMLInputElement>(null);
   const [showLinkInput, setShowLinkInput] = useState(false);
+  const [linkInputValue, setLinkInputValue] = useState('');
   
   // YouTube Logic for Dashboard CD
   const [isPlaying, setIsPlaying] = useState(false);
@@ -99,7 +100,29 @@ const MonthlySpread: React.FC<MonthlySpreadProps> = ({ currentDate, items, textD
 
   const handleLinkSubmit = (e: React.KeyboardEvent<HTMLInputElement>) => {
       if (e.key === 'Enter') {
-          const url = (e.target as HTMLInputElement).value;
+          e.preventDefault();
+          const url = linkInputValue.trim();
+          
+          if (url) {
+              onUpdateText(dashboardKey, 'musicUrl', url);
+              
+              // Auto-extract thumbnail if YouTube
+              const id = getVideoId(url);
+              if (id) {
+                  const thumbUrl = `https://img.youtube.com/vi/${id}/mqdefault.jpg`;
+                  onUpdateText(dashboardKey, 'photoUrl', thumbUrl);
+              }
+          }
+          
+          setLinkInputValue('');
+          setShowLinkInput(false);
+      }
+  };
+
+  const handleLinkBlur = () => {
+      // Save on blur if there's a value
+      const url = linkInputValue.trim();
+      if (url) {
           onUpdateText(dashboardKey, 'musicUrl', url);
           
           // Auto-extract thumbnail if YouTube
@@ -108,9 +131,10 @@ const MonthlySpread: React.FC<MonthlySpreadProps> = ({ currentDate, items, textD
               const thumbUrl = `https://img.youtube.com/vi/${id}/mqdefault.jpg`;
               onUpdateText(dashboardKey, 'photoUrl', thumbUrl);
           }
-          
-          setShowLinkInput(false);
       }
+      
+      setLinkInputValue('');
+      setShowLinkInput(false);
   };
 
   // Helper function to get display image from any item type
@@ -424,17 +448,22 @@ const MonthlySpread: React.FC<MonthlySpreadProps> = ({ currentDate, items, textD
                                  {showLinkInput ? (
                                      <input 
                                         className="w-full text-center bg-white rounded px-1 py-1 text-sm border border-purple-200 focus:border-purple-400 outline-none animate-in fade-in slide-in-from-top-1"
-                                        placeholder="Paste Link..."
+                                        placeholder="Paste YouTube Link..."
+                                        value={linkInputValue}
+                                        onChange={(e) => setLinkInputValue(e.target.value)}
                                         onKeyDown={handleLinkSubmit}
+                                        onBlur={handleLinkBlur}
                                         autoFocus
-                                        onBlur={() => setShowLinkInput(false)}
                                      />
                                  ) : (
                                      <div className="flex gap-2 justify-center">
                                          <button 
-                                            onClick={() => setShowLinkInput(true)}
+                                            onClick={() => {
+                                                setLinkInputValue(currentData.musicUrl || '');
+                                                setShowLinkInput(true);
+                                            }}
                                             className="h-8 flex-1 bg-white rounded shadow-sm border border-slate-200 hover:bg-slate-50 hover:border-slate-300 transition-all flex items-center justify-center gap-1 active:scale-95"
-                                            title="Load URL"
+                                            title="Add YouTube Link"
                                          >
                                              <span className="text-[10px] font-bold text-slate-500">LINK</span>
                                          </button>
