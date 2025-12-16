@@ -68,6 +68,9 @@ const App: React.FC = () => {
   const [maxZ, setMaxZ] = useState(10);
   const [toastMsg, setToastMsg] = useState('');
   
+  // Mobile Detection
+  const [isMobile, setIsMobile] = useState(false);
+  
   // Mobile Zoom & Pan State
   const [scale, setScale] = useState(1);
   const [panOffset, setPanOffset] = useState({ x: 0, y: 0 });
@@ -117,6 +120,16 @@ const App: React.FC = () => {
   };
 
   const filteredItems = getFilteredItems();
+  
+  // Mobile Detection
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 1024); // lg breakpoint
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   // --- 1. Load Data & Migrate from LocalStorage ---
   useEffect(() => {
@@ -735,14 +748,14 @@ const App: React.FC = () => {
                 onDragLeave={handleDragLeave}
                 onDrop={handleDrop}
               >
-                  {/* --- LINK BAR (Embedded in Page) --- */}
-                  {(currentLayout === 'free' || currentLayout === 'monthly' || currentLayout === 'favorites') && (
+                  {/* --- LINK BAR (일기 탭에만 표시) --- */}
+                  {currentLayout === 'free' && (
                     <UrlInput 
                         onScrap={handleScrap} 
                         onUpload={handleUpload} 
                         onCreateOpen={() => setShowCreationModal(true)} 
                         isLoading={loading}
-                        className={`absolute top-5 ${currentLayout === 'monthly' ? 'left-8' : 'right-8'}`} 
+                        className="absolute top-5 right-8" 
                     />
                   )}
 
@@ -779,9 +792,6 @@ const App: React.FC = () => {
                       />
                   )}
 
-                  {/* Center Spine / Gutter */}
-                  <div className="absolute left-1/2 -translate-x-1/2 top-0 bottom-0 w-px bg-stone-300 z-20"></div>
-                  <div className="absolute left-1/2 -translate-x-1/2 top-0 bottom-0 w-16 bg-gradient-to-r from-transparent via-stone-500/5 to-transparent pointer-events-none z-20"></div>
 
                   {/* Drag & Drop Hint Overlay */}
                   {isDragOver && (
@@ -792,11 +802,53 @@ const App: React.FC = () => {
                       </div>
                   )}
 
-                  {/* Canvas Layer (Draggable Items) */}
+                  {/* Canvas Layer (Draggable Items for Desktop / Fixed Grid for Mobile) */}
                   {(currentLayout === 'free' || currentLayout === 'monthly' || currentLayout === 'favorites') && (
-                      <div className="absolute inset-0 z-30 overflow-hidden pointer-events-none" id="canvas-area">
-                         {filteredItems.map(item => (
-                          <div key={item.id} className="pointer-events-auto">
+                      isMobile ? (
+                        // 모바일: 고정 그리드 레이아웃
+                        <div className="absolute inset-0 z-30 overflow-y-auto p-4" id="canvas-area">
+                          <div className="grid grid-cols-2 gap-4 pb-20">
+                            {filteredItems.map((item, index) => (
+                              <div 
+                                key={item.id} 
+                                className="relative bg-white rounded-lg shadow-md p-2 border border-stone-200"
+                                style={{ minHeight: '200px' }}
+                              >
+                                {/* 삭제 버튼 */}
+                                <button
+                                  onClick={() => handleDeleteItem(item.id)}
+                                  className="absolute -top-2 -right-2 w-8 h-8 bg-red-500 text-white rounded-full shadow-lg z-50 flex items-center justify-center"
+                                >
+                                  <span className="text-sm font-bold">✕</span>
+                                </button>
+                                
+                                {/* 즐겨찾기 버튼 */}
+                                <button
+                                  onClick={() => handleToggleFavorite(item.id)}
+                                  className={`absolute -top-2 -left-2 w-8 h-8 rounded-full shadow-lg z-50 flex items-center justify-center ${
+                                    item.isFavorite ? 'bg-red-500 text-white' : 'bg-white text-red-300'
+                                  }`}
+                                >
+                                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
+                                    <path d="M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 01-.383-.218 25.18 25.18 0 01-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0112 5.052 5.5 5.5 0 0116.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 01-4.244 3.17 15.247 15.247 0 01-.383.219l-.022.012-.007.004-.003.001a.752.752 0 01-.704 0l-.003-.001z" />
+                                  </svg>
+                                </button>
+                                
+                                {/* 아이템 내용 (스케일 조정) */}
+                                <div className="w-full h-full flex items-center justify-center overflow-hidden">
+                                  <div style={{ transform: 'scale(0.8)', transformOrigin: 'center' }}>
+                                    {renderItemContent(item)}
+                                  </div>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      ) : (
+                        // 데스크톱: 드래그 가능한 레이아웃
+                        <div className="absolute inset-0 z-30 overflow-hidden pointer-events-none" id="canvas-area">
+                          {filteredItems.map(item => (
+                            <div key={item.id} className="pointer-events-auto">
                               <DraggableItem 
                                 item={item} 
                                 onUpdatePosition={updatePosition}
@@ -808,9 +860,10 @@ const App: React.FC = () => {
                               >
                                 {renderItemContent(item)}
                               </DraggableItem>
-                          </div>
-                        ))}
-                      </div>
+                            </div>
+                          ))}
+                        </div>
+                      )
                   )}
               </div>
           </div>

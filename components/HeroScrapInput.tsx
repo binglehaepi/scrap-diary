@@ -160,26 +160,56 @@ const HeroScrapInput: React.FC<HeroScrapInputProps> = ({ onScrap, isLoading }) =
         </p>
       </div>
 
-      {/* 지원 사이트 힌트 */}
+      {/* 지원 사이트 바로가기 버튼 */}
       <div className="mt-8 md:mt-10 sm:mt-6 flex flex-wrap justify-center gap-3 md:gap-4 sm:gap-2 text-xs md:text-sm sm:text-xs">
-        <span className="px-3 py-1.5 bg-white rounded-full shadow-sm border border-stone-200 text-stone-600 flex items-center gap-1">
+        <a 
+          href="https://www.youtube.com" 
+          target="_blank" 
+          rel="noopener noreferrer"
+          className="px-3 py-1.5 bg-white rounded-full shadow-sm border border-stone-200 text-stone-600 flex items-center gap-1 hover:bg-red-50 hover:border-red-300 hover:scale-105 active:scale-95 transition-all cursor-pointer"
+        >
           <span className="text-red-500">▶</span> YouTube
-        </span>
-        <span className="px-3 py-1.5 bg-white rounded-full shadow-sm border border-stone-200 text-stone-600 flex items-center gap-1">
+        </a>
+        <a 
+          href="https://twitter.com" 
+          target="_blank" 
+          rel="noopener noreferrer"
+          className="px-3 py-1.5 bg-white rounded-full shadow-sm border border-stone-200 text-stone-600 flex items-center gap-1 hover:bg-blue-50 hover:border-blue-300 hover:scale-105 active:scale-95 transition-all cursor-pointer"
+        >
           <span className="text-blue-500">🐦</span> Twitter
-        </span>
-        <span className="px-3 py-1.5 bg-white rounded-full shadow-sm border border-stone-200 text-stone-600 flex items-center gap-1">
+        </a>
+        <a 
+          href="https://www.instagram.com" 
+          target="_blank" 
+          rel="noopener noreferrer"
+          className="px-3 py-1.5 bg-white rounded-full shadow-sm border border-stone-200 text-stone-600 flex items-center gap-1 hover:bg-pink-50 hover:border-pink-300 hover:scale-105 active:scale-95 transition-all cursor-pointer"
+        >
           <span className="text-pink-500">📷</span> Instagram
-        </span>
-        <span className="px-3 py-1.5 bg-white rounded-full shadow-sm border border-stone-200 text-stone-600 flex items-center gap-1">
+        </a>
+        <a 
+          href="https://www.naver.com" 
+          target="_blank" 
+          rel="noopener noreferrer"
+          className="px-3 py-1.5 bg-white rounded-full shadow-sm border border-stone-200 text-stone-600 flex items-center gap-1 hover:bg-green-50 hover:border-green-300 hover:scale-105 active:scale-95 transition-all cursor-pointer"
+        >
           <span className="text-green-500">N</span> Naver
-        </span>
-        <span className="px-3 py-1.5 bg-white rounded-full shadow-sm border border-stone-200 text-stone-600 flex items-center gap-1">
+        </a>
+        <a 
+          href="https://www.aladin.co.kr" 
+          target="_blank" 
+          rel="noopener noreferrer"
+          className="px-3 py-1.5 bg-white rounded-full shadow-sm border border-stone-200 text-stone-600 flex items-center gap-1 hover:bg-orange-50 hover:border-orange-300 hover:scale-105 active:scale-95 transition-all cursor-pointer"
+        >
           <span className="text-orange-500">📚</span> 알라딘
-        </span>
-        <span className="px-3 py-1.5 bg-white rounded-full shadow-sm border border-stone-200 text-stone-600 flex items-center gap-1">
+        </a>
+        <a 
+          href="https://www.pinterest.com" 
+          target="_blank" 
+          rel="noopener noreferrer"
+          className="px-3 py-1.5 bg-white rounded-full shadow-sm border border-stone-200 text-stone-600 flex items-center gap-1 hover:bg-purple-50 hover:border-purple-300 hover:scale-105 active:scale-95 transition-all cursor-pointer"
+        >
           <span className="text-purple-500">📌</span> Pinterest
-        </span>
+        </a>
       </div>
     </div>
   );

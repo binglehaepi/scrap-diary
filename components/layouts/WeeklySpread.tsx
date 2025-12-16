@@ -40,7 +40,7 @@ const MiniCalendar = ({ currentDate, weekStart, goals, onUpdateGoals }: { curren
     }
 
     return (
-        <div className="w-full h-full p-4 flex flex-col relative bg-white/40 backdrop-blur-sm border-r border-b border-dashed border-slate-300/60">
+        <div className="w-full h-full p-4 flex flex-col relative bg-white/40 backdrop-blur-sm border-r border-b border-dashed border-slate-300/60 z-40">
             {/* Month Header */}
             <div className="text-center font-mono font-bold text-slate-500 mb-2 uppercase tracking-widest text-xs">
                 {weekStart.toLocaleString('default', { month: 'long', year: 'numeric' })}
@@ -83,7 +83,7 @@ const DaySquare = ({ date, dayItems, isBorderRight, isBorderBottom }: { date: Da
     const dayNum = date.getDate();
 
     return (
-      <div className={`relative flex flex-col p-3 group h-full bg-white/20 backdrop-blur-[1px]
+      <div className={`relative flex flex-col p-3 group h-full bg-white/20 backdrop-blur-[1px] z-40
         ${isBorderRight ? 'border-r border-dashed border-slate-300/60' : ''}
         ${isBorderBottom ? 'border-b border-dashed border-slate-300/60' : ''}
       `}>
@@ -146,8 +146,8 @@ const WeeklySpread: React.FC<WeeklySpreadProps> = ({ currentDate, items, textDat
   return (
     <>
       {/* --- Left Page (Mini Calendar + Sun + Mon + Tue) = 2x2 Grid --- */}
-      <div className="flex-1 border-r border-slate-300 relative bg-custom-paper p-6 bg-grid-pattern">
-         <div className="w-full h-full border border-slate-300/60 rounded-lg overflow-hidden shadow-sm bg-white/20">
+      <div className="flex-1 border-r border-slate-300 relative bg-custom-paper p-6 bg-grid-pattern z-40">
+         <div className="w-full h-full border border-slate-300/60 rounded-lg overflow-hidden shadow-sm bg-white/20 relative z-40">
              <div className="grid grid-cols-2 grid-rows-2 w-full h-full">
                  {/* Slot 1: Mini Calendar */}
                  <MiniCalendar 
@@ -185,8 +185,8 @@ const WeeklySpread: React.FC<WeeklySpreadProps> = ({ currentDate, items, textDat
       </div>
 
       {/* --- Right Page (Wed + Thu + Fri + Sat) = 2x2 Grid --- */}
-      <div className="flex-1 relative bg-custom-paper p-6 bg-grid-pattern">
-          <div className="w-full h-full border border-slate-300/60 rounded-lg overflow-hidden shadow-sm bg-white/20">
+      <div className="flex-1 relative bg-custom-paper p-6 bg-grid-pattern z-40">
+          <div className="w-full h-full border border-slate-300/60 rounded-lg overflow-hidden shadow-sm bg-white/20 relative z-40">
               <div className="grid grid-cols-2 grid-rows-2 w-full h-full">
                  {/* Slot 5: Wednesday (Day 3) */}
                  <DaySquare 

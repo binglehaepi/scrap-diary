@@ -228,37 +228,9 @@ const MonthlySpread: React.FC<MonthlySpreadProps> = ({ currentDate, items, textD
   }
 
   return (
-    <div className="w-full h-full flex flex-col">
-      {/* Mobile/Tablet Tab Buttons */}
-      <div className="lg:hidden flex w-full bg-white border-b border-stone-200 shadow-sm">
-        <button
-          onClick={() => setMobileTab('dashboard')}
-          className={`flex-1 py-3 text-sm font-bold transition-all ${
-            mobileTab === 'dashboard'
-              ? 'bg-purple-500 text-white'
-              : 'text-stone-600 hover:bg-stone-50'
-          }`}
-        >
-          📊 내 정보
-        </button>
-        <button
-          onClick={() => setMobileTab('calendar')}
-          className={`flex-1 py-3 text-sm font-bold transition-all ${
-            mobileTab === 'calendar'
-              ? 'bg-purple-500 text-white'
-              : 'text-stone-600 hover:bg-stone-50'
-          }`}
-        >
-          📅 달력
-        </button>
-      </div>
-
-      {/* Main Layout */}
-      <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
-        {/* --- Left Page (Dashboard Area) --- */}
-        <div className={`flex-1 lg:border-r border-slate-300 relative bg-custom-paper flex flex-col p-4 lg:p-8 gap-4 bg-grid-pattern overflow-hidden ${
-          mobileTab === 'dashboard' ? 'block' : 'hidden lg:block'
-        }`}>
+    <div className="w-full h-full flex flex-col lg:flex-row overflow-hidden">
+      {/* --- Left Page (Dashboard Area) - Desktop Only --- */}
+      <div className="hidden lg:flex flex-1 relative bg-custom-paper flex-col p-8 gap-4 bg-grid-pattern overflow-hidden">
          {/* Background Hint for Draggable Items (z-0) */}
          <div className="absolute inset-0 flex items-center justify-center opacity-5 pointer-events-none z-0">
              <span className="font-handwriting text-4xl text-slate-400 rotate-[-10deg]">Dashboard</span>
@@ -283,8 +255,8 @@ const MonthlySpread: React.FC<MonthlySpreadProps> = ({ currentDate, items, textD
              onChange={(e) => handleImageUpload(e, 'monthlyBackground')} 
          />
          
-         {/* Content Grid (z-10) */}
-         <div className="relative z-10 w-full h-full flex flex-col gap-4">
+         {/* Content Grid (z-40 to be above canvas layer) */}
+         <div className="relative z-40 w-full h-full flex flex-col gap-4">
             
             {/* Top Row: Profile (1/3) & Goals (2/3) */}
             <div className="flex gap-4 h-[35%]">
@@ -506,9 +478,7 @@ const MonthlySpread: React.FC<MonthlySpreadProps> = ({ currentDate, items, textD
       </div>
 
       {/* --- Right Page (Full Calendar) --- */}
-      <div className={`flex-1 relative bg-custom-paper flex flex-col p-4 lg:p-8 bg-grid-pattern ${
-        mobileTab === 'calendar' ? 'block' : 'hidden lg:block'
-      }`}>
+      <div className="flex-1 relative bg-custom-paper flex flex-col p-4 lg:p-8 bg-grid-pattern">
           {/* Header */}
           <div className="flex justify-between items-end mb-4 border-b-2 border-slate-800 pb-2">
              <div className="flex flex-col">
@@ -583,7 +553,6 @@ const MonthlySpread: React.FC<MonthlySpreadProps> = ({ currentDate, items, textD
                  })}
              </div>
           </div>
-      </div>
       </div>
     </div>
   );
