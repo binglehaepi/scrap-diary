@@ -368,11 +368,12 @@ const App: React.FC = () => {
       
       await addItem(type, metadata);
       
-      // 홈 페이지에서 스크랩 시 monthly 레이아웃으로 자동 이동
+      // 홈 페이지에서 스크랩 시 레이아웃 자동 이동
       if (currentLayout === 'home') {
         setTimeout(() => {
-          changeLayout('monthly');
-        }, 500); // 약간의 딜레이로 자연스럽게
+          // 모바일은 스크랩 탭으로, 데스크톱은 월간 달력으로
+          changeLayout(isMobile ? 'all_scraps' : 'monthly');
+        }, 500);
       }
     } catch (error: any) {
       console.error('스크랩 실패:', error);
