@@ -16,6 +16,9 @@ const MonthlySpread: React.FC<MonthlySpreadProps> = ({ currentDate, items, textD
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
   
+  // Mobile tab state
+  const [mobileTab, setMobileTab] = useState<'dashboard' | 'calendar'>('dashboard');
+  
   // Create a unique key for this month's dashboard data
   const dashboardKey = `${year}-${String(month + 1).padStart(2, '0')}-DASHBOARD`;
   const currentData = textData[dashboardKey] || {};
@@ -225,9 +228,37 @@ const MonthlySpread: React.FC<MonthlySpreadProps> = ({ currentDate, items, textD
   }
 
   return (
-    <>
-      {/* --- Left Page (Dashboard Area) --- */}
-      <div className="flex-1 border-r border-slate-300 relative bg-custom-paper flex flex-col p-8 gap-4 bg-grid-pattern overflow-hidden">
+    <div className="w-full h-full flex flex-col">
+      {/* Mobile/Tablet Tab Buttons */}
+      <div className="lg:hidden flex w-full bg-white border-b border-stone-200 shadow-sm">
+        <button
+          onClick={() => setMobileTab('dashboard')}
+          className={`flex-1 py-3 text-sm font-bold transition-all ${
+            mobileTab === 'dashboard'
+              ? 'bg-purple-500 text-white'
+              : 'text-stone-600 hover:bg-stone-50'
+          }`}
+        >
+          📊 내 정보
+        </button>
+        <button
+          onClick={() => setMobileTab('calendar')}
+          className={`flex-1 py-3 text-sm font-bold transition-all ${
+            mobileTab === 'calendar'
+              ? 'bg-purple-500 text-white'
+              : 'text-stone-600 hover:bg-stone-50'
+          }`}
+        >
+          📅 달력
+        </button>
+      </div>
+
+      {/* Main Layout */}
+      <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
+        {/* --- Left Page (Dashboard Area) --- */}
+        <div className={`flex-1 lg:border-r border-slate-300 relative bg-custom-paper flex flex-col p-4 lg:p-8 gap-4 bg-grid-pattern overflow-hidden ${
+          mobileTab === 'dashboard' ? 'block' : 'hidden lg:block'
+        }`}>
          {/* Background Hint for Draggable Items (z-0) */}
          <div className="absolute inset-0 flex items-center justify-center opacity-5 pointer-events-none z-0">
              <span className="font-handwriting text-4xl text-slate-400 rotate-[-10deg]">Dashboard</span>
@@ -271,13 +302,13 @@ const MonthlySpread: React.FC<MonthlySpreadProps> = ({ currentDate, items, textD
                         <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={(e) => handleImageUpload(e, 'profileImage')} />
                     </div>
                     <input 
-                        className="w-full text-center font-bold text-sm bg-transparent border-b border-transparent hover:border-slate-300 focus:border-purple-400 outline-none"
+                        className="w-full text-center font-bold text-base bg-transparent border-b border-transparent hover:border-slate-300 focus:border-purple-400 outline-none"
                         value={currentData.profileName || ''}
                         onChange={(e) => onUpdateText(dashboardKey, 'profileName', e.target.value)}
                         placeholder="Name"
                     />
                     <input 
-                        className="w-full text-center text-[10px] text-slate-500 bg-transparent border-b border-transparent hover:border-slate-300 focus:border-purple-400 outline-none"
+                        className="w-full text-center text-sm text-slate-500 bg-transparent border-b border-transparent hover:border-slate-300 focus:border-purple-400 outline-none"
                         value={currentData.profileStatus || ''}
                         onChange={(e) => onUpdateText(dashboardKey, 'profileStatus', e.target.value)}
                         placeholder="Status..."
@@ -306,7 +337,7 @@ const MonthlySpread: React.FC<MonthlySpreadProps> = ({ currentDate, items, textD
                      {/* 3. D-Day (Half Size) */}
                     <div className="flex-1 border border-slate-400/60 bg-white/40 p-1 flex flex-col items-center justify-center shadow-sm rounded-sm backdrop-blur-[1px]">
                         <input 
-                            className="w-full text-center text-[9px] font-bold text-slate-500 bg-transparent outline-none uppercase tracking-wide"
+                            className="w-full text-center text-xs font-bold text-slate-500 bg-transparent outline-none uppercase tracking-wide"
                             value={currentData.dDayTitle || ''}
                             onChange={(e) => onUpdateText(dashboardKey, 'dDayTitle', e.target.value)}
                             placeholder="EVENT"
@@ -316,7 +347,7 @@ const MonthlySpread: React.FC<MonthlySpreadProps> = ({ currentDate, items, textD
                         </div>
                         <input 
                             type="date"
-                            className="w-full text-[8px] bg-transparent text-slate-400 text-center outline-none"
+                            className="w-full text-xs bg-transparent text-slate-400 text-center outline-none"
                             value={currentData.dDayDate || ''}
                             onChange={(e) => onUpdateText(dashboardKey, 'dDayDate', e.target.value)}
                         />
@@ -405,7 +436,7 @@ const MonthlySpread: React.FC<MonthlySpreadProps> = ({ currentDate, items, textD
                                  {/* LCD Glow Effect */}
                                  <div className="absolute inset-0 bg-teal-500/5 pointer-events-none"></div>
                                  <input 
-                                    className="w-full bg-transparent text-teal-400 font-mono text-xs outline-none placeholder-teal-400/30 text-center"
+                                    className="w-full bg-transparent text-teal-400 font-mono text-sm outline-none placeholder-teal-400/30 text-center"
                                     placeholder="TRACK 01..."
                                     value={currentData.musicTitle || ''}
                                     onChange={(e) => onUpdateText(dashboardKey, 'musicTitle', e.target.value)}
@@ -420,7 +451,7 @@ const MonthlySpread: React.FC<MonthlySpreadProps> = ({ currentDate, items, textD
                              <div className="flex flex-col gap-2">
                                  {showLinkInput ? (
                                      <input 
-                                        className="w-full text-center bg-white rounded px-1 py-1 text-[9px] border border-purple-200 focus:border-purple-400 outline-none animate-in fade-in slide-in-from-top-1"
+                                        className="w-full text-center bg-white rounded px-1 py-1 text-sm border border-purple-200 focus:border-purple-400 outline-none animate-in fade-in slide-in-from-top-1"
                                         placeholder="Paste Link..."
                                         onKeyDown={handleLinkSubmit}
                                         autoFocus
@@ -475,7 +506,9 @@ const MonthlySpread: React.FC<MonthlySpreadProps> = ({ currentDate, items, textD
       </div>
 
       {/* --- Right Page (Full Calendar) --- */}
-      <div className="flex-1 relative bg-custom-paper flex flex-col p-8 bg-grid-pattern">
+      <div className={`flex-1 relative bg-custom-paper flex flex-col p-4 lg:p-8 bg-grid-pattern ${
+        mobileTab === 'calendar' ? 'block' : 'hidden lg:block'
+      }`}>
           {/* Header */}
           <div className="flex justify-between items-end mb-4 border-b-2 border-slate-800 pb-2">
              <div className="flex flex-col">
@@ -551,7 +584,8 @@ const MonthlySpread: React.FC<MonthlySpreadProps> = ({ currentDate, items, textD
              </div>
           </div>
       </div>
-    </>
+      </div>
+    </div>
   );
 };
 

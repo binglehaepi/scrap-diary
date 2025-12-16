@@ -25,7 +25,7 @@ export enum ScrapType {
   POSTYPE = 'postype'
 }
 
-export type LayoutType = 'home' | 'free' | 'monthly' | 'weekly' | 'scrap_page' | 'favorites';
+export type LayoutType = 'home' | 'free' | 'monthly' | 'weekly' | 'favorites';
 export type BorderStyle = 'none' | 'stitch' | 'marker' | 'tape' | 'shadow';
 
 export interface ScrapMetadata {

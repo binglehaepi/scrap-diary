@@ -41,7 +41,7 @@ const UrlInput: React.FC<UrlInputProps> = ({ onScrap, onUpload, onCreateOpen, is
                 value={url}
                 onChange={(e) => setUrl(e.target.value)}
                 placeholder={isLoading ? "Scraping..." : "Paste link..."}
-                className="w-full bg-transparent border-b-2 border-stone-300 focus:border-purple-400 outline-none text-sm md:text-sm sm:text-xs font-handwriting text-stone-800 placeholder-stone-400/50 pb-1 transition-colors"
+                className="w-full bg-transparent border-b-2 border-stone-300 focus:border-purple-400 outline-none text-base font-handwriting text-stone-800 placeholder-stone-400/50 pb-1 transition-colors"
                 disabled={isLoading}
             />
             {isLoading && (

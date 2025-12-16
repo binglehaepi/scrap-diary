@@ -48,7 +48,6 @@ const TEXT_DATA_KEY = 'smart_scrap_text_data';
 const STYLE_PREF_KEY = 'smart_scrap_style_pref';
 
 const MONTHS = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
-const GLOBAL_SCRAP_PAGE_KEY = 'GLOBAL_SCRAP_PAGE';
 
 const App: React.FC = () => {
   // ✅ Dexie.js 실시간 쿼리 - DB가 변경되면 자동으로 화면이 업데이트됩니다
@@ -98,14 +97,9 @@ const App: React.FC = () => {
   };
 
   const getFilteredItems = () => {
-      // Favorites (13번째 탭 - 영구 소장)
+      // Favorites (영구 소장)
       if (currentLayout === 'favorites') {
           return items.filter(item => item.isFavorite === true);
-      }
-      
-      // Global Scrap Page
-      if (currentLayout === 'scrap_page') {
-          return items.filter(item => item.diaryDate === GLOBAL_SCRAP_PAGE_KEY);
       }
 
       // In Monthly view, we show items that belong to the "Month Canvas" (Left Page)
@@ -246,8 +240,7 @@ const App: React.FC = () => {
   const changeLayout = (type: LayoutType) => {
       setCurrentLayout(type);
       localStorage.setItem(LAYOUT_PREF_KEY, type);
-      const displayMsg = type === 'scrap_page' ? 'SCRAPBOOK' 
-                       : type === 'home' ? 'HOME'
+      const displayMsg = type === 'home' ? 'HOME'
                        : type === 'favorites' ? '🏆 HALL OF FAME'
                        : type.toUpperCase();
       setToastMsg(displayMsg);
@@ -412,7 +405,6 @@ const App: React.FC = () => {
       // Determine context
       let targetDateKey = formatDateKey(currentDate);
       if (currentLayout === 'monthly') targetDateKey = formatMonthKey(currentDate);
-      if (currentLayout === 'scrap_page') targetDateKey = GLOBAL_SCRAP_PAGE_KEY;
 
       // Spawn location logic
       let startX, startY;
@@ -700,10 +692,10 @@ const App: React.FC = () => {
                   ✏️ 오늘의 다이어리
                 </button>
                 <button
-                  onClick={() => changeLayout('scrap_page')}
+                  onClick={() => changeLayout('favorites')}
                   className="px-6 py-3 bg-white rounded-xl shadow-md border border-stone-200 hover:shadow-lg hover:scale-105 transition-all text-stone-700 font-medium"
                 >
-                  ⭐ 스크랩북
+                  ❤️ 영구 소장
                 </button>
               </div>
             </div>
@@ -744,8 +736,7 @@ const App: React.FC = () => {
                 onDrop={handleDrop}
               >
                   {/* --- LINK BAR (Embedded in Page) --- */}
-                  {/* Position Logic: Right for Daily/ScrapPage, Left for Monthly */}
-                  {(currentLayout === 'free' || currentLayout === 'monthly' || currentLayout === 'scrap_page' || currentLayout === 'favorites') && (
+                  {(currentLayout === 'free' || currentLayout === 'monthly' || currentLayout === 'favorites') && (
                     <UrlInput 
                         onScrap={handleScrap} 
                         onUpload={handleUpload} 
@@ -760,12 +751,6 @@ const App: React.FC = () => {
                         currentDate={currentDate} 
                         onPrevDay={() => handleDateChange(-1)} 
                         onNextDay={() => handleDateChange(1)} 
-                      />
-                  )}
-                  {currentLayout === 'scrap_page' && (
-                      <FreeLayout 
-                        currentDate={currentDate} 
-                        isStaticPage={true}
                       />
                   )}
                   {currentLayout === 'favorites' && (
@@ -808,7 +793,7 @@ const App: React.FC = () => {
                   )}
 
                   {/* Canvas Layer (Draggable Items) */}
-                  {(currentLayout === 'free' || currentLayout === 'monthly' || currentLayout === 'scrap_page' || currentLayout === 'favorites') && (
+                  {(currentLayout === 'free' || currentLayout === 'monthly' || currentLayout === 'favorites') && (
                       <div className="absolute inset-0 z-30 overflow-hidden pointer-events-none" id="canvas-area">
                          {filteredItems.map(item => (
                           <div key={item.id} className="pointer-events-auto">
@@ -819,7 +804,7 @@ const App: React.FC = () => {
                                 onDelete={handleDeleteItem}
                                 onSetMainItem={handleSetMainItem}
                                 onToggleFavorite={handleToggleFavorite}
-                                snapToGrid={currentLayout === 'scrap_page' || currentLayout === 'favorites'}
+                                snapToGrid={currentLayout === 'favorites'}
                               >
                                 {renderItemContent(item)}
                               </DraggableItem>
@@ -830,8 +815,8 @@ const App: React.FC = () => {
               </div>
           </div>
 
-          {/* Side Tabs (Indices) */}
-          <div className="absolute top-8 -right-8 md:-right-8 sm:-right-2 flex flex-col gap-1 z-0">
+          {/* Side Tabs (Indices) - Hidden on mobile/tablet */}
+          <div className="hidden lg:flex absolute top-8 -right-8 flex-col gap-1 z-0">
               {/* HOME Tab (0번째) */}
               <button 
                 onClick={() => changeLayout('home')}
@@ -852,28 +837,14 @@ const App: React.FC = () => {
                     onClick={() => handleMonthSelect(i)}
                     className={`
                         w-12 h-8 md:w-12 md:h-8 sm:w-10 sm:h-7 rounded-r-md flex items-center pl-2 md:text-[10px] sm:text-[8px] text-[10px] font-bold tracking-widest shadow-sm border border-l-0 border-stone-200 transition-transform hover:translate-x-1 active:translate-x-1
-                        ${(currentLayout !== 'scrap_page' && currentDate.getMonth() === i) ? 'bg-white text-stone-900 translate-x-1 font-black' : 'bg-[#f4f1ea] text-stone-400'}
+                        ${currentDate.getMonth() === i ? 'bg-white text-stone-900 translate-x-1 font-black' : 'bg-[#f4f1ea] text-stone-400'}
                     `}
                   >
                       {m}
                   </button>
               ))}
               
-              {/* Star Scrap Page Tab */}
-              <button 
-                onClick={() => changeLayout('scrap_page')}
-                className={`
-                    w-12 h-10 md:w-12 md:h-10 sm:w-10 sm:h-9 rounded-r-md flex items-center justify-center shadow-sm border border-l-0 border-yellow-300 transition-transform hover:translate-x-1 active:translate-x-1 mt-2
-                    ${currentLayout === 'scrap_page' ? 'bg-yellow-300 text-white translate-x-1' : 'bg-yellow-100 text-yellow-400'}
-                `}
-                title="My Scrap Page"
-              >
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6">
-                    <path fillRule="evenodd" d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.007 5.404.433c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.433 2.082-5.006z" clipRule="evenodd" />
-                  </svg>
-              </button>
-              
-              {/* Hall of Fame Tab (13번째 - 영구 소장) */}
+              {/* Hall of Fame Tab (영구 소장) */}
               <button 
                 onClick={() => changeLayout('favorites')}
                 className={`
@@ -899,8 +870,51 @@ const App: React.FC = () => {
 
       {/* --- UI Overlays --- */}
 
-      {/* Minimal Top Toolbar - Moved to absolute right to avoid overlapping the book content */}
-      <div className="fixed top-8 right-8 md:top-8 md:right-8 sm:top-4 sm:right-4 z-[100] flex flex-col gap-3">
+      {/* Mobile/Tablet Bottom Navigation */}
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-stone-200 shadow-lg z-[100] flex justify-around items-center py-2">
+        <button 
+          onClick={() => changeLayout('home')}
+          className={`flex flex-col items-center gap-1 px-4 py-2 ${currentLayout === 'home' ? 'text-blue-500' : 'text-stone-600'}`}
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-6 h-6">
+            <path fillRule="evenodd" d="M9.293 2.293a1 1 0 011.414 0l7 7A1 1 0 0117 11h-1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-3a1 1 0 00-1-1H9a1 1 0 00-1 1v3a1 1 0 01-1 1H5a1 1 0 01-1-1v-6H3a1 1 0 01-.707-1.707l7-7z" clipRule="evenodd" />
+          </svg>
+          <span className="text-xs">홈</span>
+        </button>
+        
+        <button 
+          onClick={() => changeLayout('monthly')}
+          className={`flex flex-col items-center gap-1 px-4 py-2 ${currentLayout === 'monthly' ? 'text-purple-500' : 'text-stone-600'}`}
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+          </svg>
+          <span className="text-xs">월간</span>
+        </button>
+        
+        <button 
+          onClick={() => changeLayout('free')}
+          className={`flex flex-col items-center gap-1 px-4 py-2 ${currentLayout === 'free' ? 'text-green-500' : 'text-stone-600'}`}
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+          </svg>
+          <span className="text-xs">일기</span>
+        </button>
+        
+        <button 
+          onClick={() => changeLayout('favorites')}
+          className={`flex flex-col items-center gap-1 px-4 py-2 ${currentLayout === 'favorites' ? 'text-red-500' : 'text-stone-600'}`}
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6">
+            <path d="M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 01-.383-.218 25.18 25.18 0 01-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0112 5.052 5.5 5.5 0 0116.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 01-4.244 3.17 15.247 15.247 0 01-.383.219l-.022.012-.007.004-.003.001a.752.752 0 01-.704 0l-.003-.001z" />
+          </svg>
+          <span className="text-xs">소장</span>
+        </button>
+      </div>
+
+      {/* Desktop Top Toolbar */}
+      <div className="hidden lg:flex fixed top-8 right-8 z-[100] flex-col gap-3">
             {/* Decoration Selector (Stickers/Tape) */}
             <DecorationSelector onSelect={handleDecoration} />
 
