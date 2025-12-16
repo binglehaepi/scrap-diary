@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <title>Smart Scrap Objects</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400..700&family=VT323&family=Libre+Barcode+39+Text&display=swap" rel="stylesheet">
+    <style>
+      /* --- Font Import: Kyobo Handwriting 2019 (Fallback for Korean) --- */
+      @font-face {
+        font-family: 'KyoboHandwriting2019';
+        src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2001@1.1/KyoboHandwriting2019.woff') format('woff');
+        font-weight: normal;
+        font-style: normal;
+      }
+
+      /* Custom scrollbar for a cleaner look */
+      ::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+      }
+      ::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #d6d3c0; /* Warmer scrollbar */
+        border-radius: 3px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: #a8a29e;
+      }
+
+      /* --- UPDATED: Warm Analog Planner Styles --- */
+      
+      /* Base background for the "Desk" - Warm Beige */
+      body {
+        background-color: #f4f1ea; 
+        background-image: radial-gradient(#dcd9ce 1px, transparent 1px);
+        background-size: 40px 40px;
+        font-family: 'Caveat', 'KyoboHandwriting2019', sans-serif; /* Caveat prioritized */
+      }
+
+      /* The Paper Itself - Creamy White */
+      .bg-custom-paper {
+        background-color: #fdfbf6; 
+      }
+
+      /* Fine Grid Pattern - Updated to be thin, faint grid */
+      .bg-grid-pattern {
+        background-size: 20px 20px;
+        background-image:
+          linear-gradient(to right, rgba(0,0,0,0.06) 1px, transparent 1px),
+          linear-gradient(to bottom, rgba(0,0,0,0.06) 1px, transparent 1px);
+      }
+
+      /* Analog Aesthetics */
+      .font-handwriting {
+        font-family: 'Caveat', 'KyoboHandwriting2019', cursive;
+      }
+      .font-serif-kr {
+        font-family: 'Caveat', 'KyoboHandwriting2019', serif; /* Consistent handwriting feel */
+      }
+      .font-receipt {
+        font-family: 'VT323', monospace;
+      }
+      .font-barcode {
+        font-family: 'Libre Barcode 39 Text', cursive;
+      }
+      
+      /* Subtle Paper Texture Overlay */
+      .paper-texture::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.06'/%3E%3C/svg%3E");
+        opacity: 0.5;
+        pointer-events: none;
+        z-index: 1;
+      }
+
+      /* Animations remain same... */
+      @keyframes spin-record {
+        from { transform: rotate(0deg); }
+        to   { transform: rotate(360deg); }
+      }
+      .animate-spin-slow {
+        animation: spin-record 6s linear infinite;
+      }
+      .paused-animation {
+        animation-play-state: paused;
+      }
+
+      @keyframes receipt-print {
+        from { height: 0; opacity: 0; transform: translateY(-20px); }
+        to { height: auto; opacity: 1; transform: translateY(0); }
+      }
+      .animate-receipt {
+        animation: receipt-print 0.8s ease-out forwards;
+        transform-origin: top;
+      }
+
+      @keyframes swing {
+        0% { transform: rotate(5deg); }
+        50% { transform: rotate(-5deg); }
+        100% { transform: rotate(5deg); }
+      }
+      .animate-swing {
+        transform-origin: top center;
+        animation: swing 3s ease-in-out infinite;
+      }
+      .animate-swing:hover {
+        animation-play-state: paused;
+      }
+
+      .tape-edge {
+        mask-image: linear-gradient(135deg, #000 5px, transparent 0), linear-gradient(-135deg, #000 5px, transparent 0);
+        mask-size: 10px 100%;
+        mask-position: bottom;
+        mask-repeat: repeat-x;
+      }
+      
+      .gloss-overlay {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(125deg, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0) 40%, rgba(255,255,255,0) 60%, rgba(255,255,255,0.2) 100%);
+        pointer-events: none;
+        z-index: 10;
+      }
+
+      /* Mobile Touch Optimizations */
+      * {
+        -webkit-tap-highlight-color: transparent;
+        -webkit-touch-callout: none;
+      }
+
+      button, a, input {
+        -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1);
+      }
+
+      /* Prevent pull-to-refresh on mobile */
+      body {
+        overscroll-behavior: none;
+      }
+
+      /* Better touch targets for mobile */
+      @media (max-width: 768px) {
+        button {
+          min-width: 44px;
+          min-height: 44px;
+        }
+      }
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
+    "@google/genai": "https://esm.sh/@google/genai@^1.33.0",
+    "react": "https://esm.sh/react@^19.2.3",
+    "react/": "https://esm.sh/react@^19.2.3/",
+    "react-social-media-embed": "https://esm.sh/react-social-media-embed@2.5.1?deps=react@19.2.3,react-dom@19.2.3",
+    "react-youtube": "https://esm.sh/react-youtube@10.1.0?deps=react@19.2.3"
+  }
+}
+</script>
+<link rel="stylesheet" href="/index.css">
+</head>
+  <body class="overflow-hidden font-handwriting text-stone-700">
+    <div id="root"></div>
+  <script type="module" src="/index.tsx"></script>
+</body>
+</html>
